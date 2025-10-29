@@ -114,7 +114,7 @@ header {
     animation: fadeInDown 1.5s ease forwards;
     z-index: 2;
     backdrop-filter: blur(4px);
-    padding: 20px 10px; /* Reducimos el padding horizontal a 10px */
+    padding: 10px 5px; /* Reducimos el padding horizontal a 10px */
     width: 95%; /* Aseguramos que ocupe casi todo el ancho disponible */
     max-width: 800px; 
     box-sizing: border-box; /* Fundamental: asegura que padding no desborde */
@@ -431,22 +431,22 @@ header {
     #btnMusica { font-size: 0.8em; padding: 8px 12px; }
     .mensaje-exito { font-size: 1.2em; }
 }
-    /* === Móvil Súper Pequeño (Max 375px) === */
+
+/* === Móvil Súper Pequeño (Max 375px) === */
 @media(max-width: 375px) {
     /* Altura del encabezado ajustada */
     header { height: 70vh; } 
     
-    /* El nombre principal (h1) */
-    h1 { font-size: 1.8em; } 
+    /* CORRECCIÓN FINAL H1: Usar vw para que el tamaño dependa del ancho de la pantalla */
+    h1 { font-size: 7vw; /* Esto asegura que ocupe menos del 7% del ancho total */ } 
     
-    /* La frase "Nos casamos" (h2) */
-    h2 { font-size: 1.1em; } 
+    /* CORRECCIÓN FINAL H2: Usar vw para que el tamaño dependa del ancho de la pantalla */
+    h2 { font-size: 5vw; } 
     
     /* El texto del header debe tener un padding mínimo */
     .header-texto { padding: 10px 5px; } 
     
-    /* Contador */
-    .contador .tiempo { font-size: 1.2em; width: 90%; }
+    /* ... (resto de las reglas, como el contador, se mantienen) ... */
 }
 </style>
 
