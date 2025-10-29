@@ -106,17 +106,18 @@ header {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    /* El transform con el factor de parallax se aplica en JS */
+    transform: translate(-50%, -50%); 
     text-align: center;
     color: #fffaf0;
     text-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-    animation: fadeInDown 1.5s ease forwards; /* Animación de entrada */
+    animation: fadeInDown 1.5s ease forwards;
     z-index: 2;
     backdrop-filter: blur(4px);
-    padding: 20px 40px;
-    border-radius: 15px;
-    width: 90%; /* Ancho máximo en móvil */
+    padding: 20px 10px; /* Reducimos el padding horizontal a 10px */
+    width: 95%; /* Aseguramos que ocupe casi todo el ancho disponible */
     max-width: 800px; 
+    box-sizing: border-box; /* Fundamental: asegura que padding no desborde */
 }
 
 /* Contenedores */
@@ -429,6 +430,23 @@ header {
     .confirmacion input, .confirmacion textarea { font-size: 0.9em; }
     #btnMusica { font-size: 0.8em; padding: 8px 12px; }
     .mensaje-exito { font-size: 1.2em; }
+}
+    /* === Móvil Súper Pequeño (Max 375px) === */
+@media(max-width: 375px) {
+    /* Altura del encabezado ajustada */
+    header { height: 70vh; } 
+    
+    /* El nombre principal (h1) */
+    h1 { font-size: 1.8em; } 
+    
+    /* La frase "Nos casamos" (h2) */
+    h2 { font-size: 1.1em; } 
+    
+    /* El texto del header debe tener un padding mínimo */
+    .header-texto { padding: 10px 5px; } 
+    
+    /* Contador */
+    .contador .tiempo { font-size: 1.2em; width: 90%; }
 }
 </style>
 
