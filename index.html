@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boda Lizeth & Eduardo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+<style>
+    /* * ESTILOS BASE Y FUENTES (Para todos los dispositivos)
+ * Se asegura de que el box-model sea predecible.
+ */
+*, *::before, *::after {
+    box-sizing: border-box; /* CRUCIAL PARA RESPONSIVIDAD */
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #5a4a4a;
+    position: relative;
+    background: linear-gradient(120deg, #ffe6d5, #fffaf0, #fef5e0, #ffe6d5);
+    background-size: 400% 400%;
+    animation: fondoAnim 20s ease infinite;
+    min-height: 100vh;
+}
+
+/* Canvas y Texto flotante */
+#canvasParticles, #canvasCorazones {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+#canvasCorazones { z-index: 999; } /* Aseguramos que los corazones estén por encima de las partículas */
+
+.texto-flotante {
+    position: fixed;
+    font-family: 'Great Vibes', cursive;
+    font-size: 1.2em; /* Reducido el tamaño base para móvil */
+    color: rgba(191, 161, 83, .35);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    z-index: 0;
+    animation: flotar 20s linear infinite; /* Animación de flotar */
+}
+
+/* Tipografía */
+h1, h2 {
+    font-family: 'Great Vibes', cursive;
+    color: #bfa153;
+    margin: 0 0 10px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3.5em; /* Base ajustada */
+    text-shadow: 2px 2px 10px rgba(191, 161, 83, 0.3);
+}
+
+h2 {
+    font-size: 2em; /* Base ajustada */
+    margin-bottom: 30px;
+}
+
+p {
+    font-size: 1em; /* Base ajustada */
+    line-height: 1.6em;
+}
+
+/* Encabezado */
+header {
+    position: relative;
+    height: 80vh; 
+    overflow: hidden;
+    perspective: 1000px;
+    z-index: 1;
+}
+
+.carrusel .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transform: scale(1) translateZ(0);
+    transition: opacity 2s ease, transform 2s ease;
+}
+
+.carrusel .slide.active {
+    opacity: 1;
+    transform: scale(1.05) translateZ(50px);
+}
+
+.carrusel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.8); /* Oscurecido para texto blanco */
+}
+
+.header-texto {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fffaf0;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    animation: fadeInDown 1.5s ease forwards; /* Animación de entrada */
+    z-index: 2;
+    backdrop-filter: blur(4px);
+    padding: 20px 40px;
+    border-radius: 15px;
+    width: 90%; /* Ancho máximo en móvil */
+    max-width: 800px; 
+}
+
+/* Contenedores */
+.contenedor {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 30px 15px;
+    z-index: 2;
+    position: relative;
+}
+
+.mensaje-largo {
+    font-family: 'Great Vibes', cursive;
+    font-size: 1.5em; /* Base ajustada */
+    color: #bfa153;
+    margin: 40px auto;
+    max-width: 900px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1s ease;
+    background: rgba(255, 250, 240, 0.95);
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(191, 161, 83, 0.2);
+}
+
+.mensaje-largo.visible{opacity:1;transform:translateY(0);} /* Animación scroll */
+
+/* Contador */
+.contador {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 40px 0;
+    flex-wrap: wrap; 
+}
+
+.contador .tiempo {
+    position: relative;
+    background: rgba(255, 250, 240, 0.95);
+    padding: 20px 15px;
+    border-radius: 15px;
+    text-align: center;
+    font-weight: bold;
+    min-width: 80px;
+    font-size: 1.8em;
+    color: #bfa153;
+    font-family: 'Great Vibes', cursive;
+    box-shadow: 0 10px 25px rgba(191, 161, 83, 0.3), 0 0 15px rgba(191, 161, 83, 0.2);
+    transition: transform .3s ease, box-shadow .4s ease;
+    backdrop-filter: blur(4px);
+    flex: 1 1 20%;
+    max-width: 250px;
+}
+
+.contador .tiempo:hover {
+    transform: scale(1.03); 
+    box-shadow: 0 12px 30px rgba(191, 161, 83, 0.5), 0 0 30px rgba(191, 161, 83, 0.4);
+}
+
+.contador .tiempo span.label {
+    font-size: .8em;
+    color: #8c704c;
+    margin-top: 3px;
+    font-weight: 500;
+}
+
+/* Eventos */
+.eventos {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin: 40px 0;
+}
+
+.evento-item {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(191, 161, 83, 0.15);
+    transition: transform .5s ease, box-shadow .5s ease;
+    backdrop-filter: blur(3px);
+    width: 280px; 
+    max-width: 95%;
+}
+
+.evento-item:hover{transform:translateY(-5px);box-shadow:0 18px 40px rgba(191,161,83,0.35);}
+
+.evento-item img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #bfa153;
+    margin-bottom: 10px;
+    transition:transform .5s ease,box-shadow .5s ease;
+}
+
+.evento-item img:hover{transform:scale(1.05);box-shadow:0 12px 25px rgba(191,161,83,0.45);}
+
+.boton-maps {
+    display:inline-block;
+    background:linear-gradient(135deg,#bfa153,#d4b06a);
+    color:#fff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration:none;
+    font-size: 1em;
+    transition:all .4s ease,box-shadow .4s ease,transform .3s ease;
+    box-shadow:0 6px 18px rgba(191,161,83,0.3);
+    margin-top: 10px;
+}
+
+.boton-maps:hover{background:linear-gradient(135deg,#a38639,#c8a655);transform:translateY(-3px) scale(1.02);box-shadow:0 10px 25px rgba(191,161,83,0.45);}
+
+/* Itinerario */
+.itinerario-vertical {
+    max-width: 600px;
+    margin: 40px auto;
+    position: relative;
+    padding-left: 40px;
+}
+
+.itinerario-vertical::before {
+    content:'';
+    position:absolute;
+    left: 20px;
+    top:0;
+    bottom:0;
+    width: 4px;
+    background:linear-gradient(180deg,#bfa153,#d4b06a);
+    border-radius:3px;
+}
+
+.evento-vertical {
+    position:relative;
+    margin-bottom: 40px;
+    opacity:0;
+    transform:translateX(-50px);
+    transition:all .8s ease;
+}
+
+.evento-vertical.visible{opacity:1;transform:translateX(0);} /* Animación scroll */
+
+.evento-vertical::before {
+    content:'';
+    position:absolute;
+    left: -28px;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+    background:#bfa153;
+    border-radius:50%;
+    transition:transform .4s ease,background .4s ease;
+}
+
+.evento-vertical:hover::before{transform:scale(1.2);background:#d4b06a;}
+
+.detalle .etiqueta {
+    font-family:'Great Vibes',cursive;
+    font-size: 1.3em;
+    color:#bfa153;
+    display:block;
+    margin-bottom:5px;
+}
+
+.detalle .hora {
+    font-size:1em;
+    color:#8c704c;
+    margin-bottom:5px;
+}
+
+/* Confirmación */
+.confirmacion {
+    background: rgba(255, 250, 240, 0.98);
+    padding: 30px 20px;
+    border-radius: 20px;
+    text-align:center;
+    max-width: 500px;
+    margin:50px auto;
+    box-shadow:0 12px 30px rgba(191,161,83,0.25);
+}
+
+.confirmacion h2{margin-bottom:20px;}
+
+.confirmacion form{display:flex;flex-direction:column;gap:15px;}
+
+.confirmacion input,.confirmacion textarea{
+    padding: 12px;
+    border-radius: 8px;
+    border:1px solid #d8c09d;
+    font-size:0.95em;
+    outline:none;
+    width:100%;
+    background:rgba(255,255,255,0.85);
+}
+
+.confirmacion textarea{height:100px; resize: vertical;}
+
+.confirmacion button{
+    background:linear-gradient(135deg,#bfa153,#d4b06a);
+    color:#fff;
+    padding:15px 30px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:1.1em;
+    transition:all .4s ease,box-shadow .4s ease;
+}
+
+.confirmacion button:hover{background:linear-gradient(135deg,#a38639,#c8a655);transform:translateY(-2px);box-shadow:0 10px 25px rgba(191,161,83,0.45);}
+
+/* Botón de Música */
+#btnMusica {
+    position:fixed; 
+    bottom: 15px; 
+    right: 15px; 
+    background:#bfa153; 
+    color:white; 
+    border:none; 
+    padding: 10px 15px; 
+    border-radius: 10px; 
+    cursor:pointer; 
+    z-index:1000; 
+    font-size: 0.9em;
+}
+
+/* Mensaje de Éxito */
+.mensaje-exito{
+    background:rgba(191,161,83,0.95);
+    color:#fff;
+    padding: 12px 25px;
+    border-radius:15px;
+    position:fixed;
+    top:30px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'Great Vibes',cursive;
+    font-size: 1.5em;
+    opacity:0;
+    transition:opacity 1s ease;
+    z-index:9999;
+    white-space: nowrap;
+}
+.mensaje-exito.visible{opacity:1;}
+
+/* * DEFINICIÓN DE ANIMACIONES CSS KEYFRAMES * */
+@keyframes fondoAnim{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes fadeInDown{0%{opacity:0;transform:translateY(-50px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes flotar{0%{transform:translateY(100vh) translateX(0) rotate(0deg);opacity:0}10%{opacity:1}50%{transform:translateY(50vh) translateX(100px) rotate(180deg)}90%{opacity:1}100%{transform:translateY(-10vh) translateX(0) rotate(360deg);opacity:0}}
+
+
+/*
+ * MEDIA QUERIES (Responsividad)
+ */
+
+/* === Tablet / PC Pequeño (Max 1024px) === */
+@media(max-width: 1024px) {
+    h1 { font-size: 3em; }
+    h2 { font-size: 1.8em; }
+    .mensaje-largo { font-size: 1.4em; }
+    .contador .tiempo { font-size: 1.6em; flex: 1 1 45%; } /* Fuerza 2 columnas */
+}
+
+/* === Móvil Grande (Max 768px) === */
+@media(max-width: 768px) {
+    header { height: 80vh; }
+    h1 { font-size: 2.5em; }
+    h2 { font-size: 1.5em; }
+    .mensaje-largo { font-size: 1.2em; padding: 20px; }
+    
+    /* Contador: sigue 2x2 */
+    .contador .tiempo { font-size: 1.5em; min-width: 100px; padding: 15px 10px; } 
+
+    /* Eventos: Una columna en el centro */
+    .eventos { flex-direction: column; align-items: center; }
+    .evento-item { width: 80%; }
+    
+    /* Itinerario: Ajuste mínimo */
+    .itinerario-vertical { padding-left: 30px; }
+    .itinerario-vertical::before { left: 15px; }
+    .evento-vertical::before { left: -25px; }
+}
+
+/* === Móvil Pequeño (Max 480px) === */
+@media(max-width: 480px) {
+    header { height: 75vh; }
+    h1 { font-size: 2em; }
+    h2 { font-size: 1.3em; }
+    p { font-size: 0.9em; }
+
+    /* Contador: Una columna */
+    .contador { flex-direction: column; align-items: center; gap: 10px; }
+    .contador .tiempo { font-size: 1.3em; width: 80%; max-width: none; flex: 1 1 100%; }
+    .contador .tiempo span.label { font-size: 0.9em; }
+
+    .mensaje-largo { font-size: 1.1em; padding: 15px; }
+    
+    .evento-item { width: 90%; }
+
+    /* Itinerario: Ajuste mínimo */
+    .itinerario-vertical { padding-left: 20px; }
+    .itinerario-vertical::before { left: 10px; width: 3px; }
+    .evento-vertical::before { left: -18px; width: 15px; height: 15px; }
+    .detalle .etiqueta { font-size: 1.2em; }
+    
+    .confirmacion input, .confirmacion textarea { font-size: 0.9em; }
+    #btnMusica { font-size: 0.8em; padding: 8px 12px; }
+    .mensaje-exito { font-size: 1.2em; }
+}
+</style>
+
+</head>
+<body>
+
+<!-- PARTICULAS -->
+<canvas id="canvasParticles"></canvas>
+
+
+<!-- CORAZONES -->
+<canvas id="canvasCorazones" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999;"></canvas>
+
+<script>
+// FUNCION PARA CORAZONES - No se autoejecuta aquí para evitar conflictos.
+function iniciarCorazones() {
+    const canvasCorazones = document.getElementById('canvasCorazones');
+    // Si el canvas no existe o el contexto falla, no continuamos
+    if (!canvasCorazones || !canvasCorazones.getContext) return; 
+    
+    const ctxCorazones = canvasCorazones.getContext('2d');
+    canvasCorazones.width = window.innerWidth;
+    canvasCorazones.height = window.innerHeight;
+
+    const corazones = [];
+    const colores = ['#ff7f7f', '#ffb6b9', '#f6c1c1', '#ffd1dc', '#ff6f91'];
+
+    function crearCorazones(cantidad = 70) {
+        for (let i = 0; i < cantidad; i++) {
+            corazones.push({
+                x: Math.random() * canvasCorazones.width,
+                y: Math.random() * canvasCorazones.height,
+                baseSize: 5 + Math.random() * 15,
+                size: 5 + Math.random() * 15,
+                speed: 0.5 + Math.random() * 1.5,
+                angle: Math.random() * Math.PI * 2,
+                opacity: 0.5 + Math.random() * 0.5,
+                color: colores[Math.floor(Math.random() * colores.length)],
+                drift: (Math.random() - 0.5) * 1,
+                pulse: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    function dibujarCorazon(c) {
+        ctxCorazones.save();
+        ctxCorazones.translate(c.x, c.y);
+        ctxCorazones.rotate(c.angle);
+        ctxCorazones.globalAlpha = c.opacity;
+        ctxCorazones.shadowBlur = 10;
+        ctxCorazones.shadowColor = c.color;
+
+        ctxCorazones.beginPath();
+        // Lógica del corazón (la mantenemos igual)
+        ctxCorazones.moveTo(0, 0);
+        ctxCorazones.bezierCurveTo(0, -c.size, -c.size, -c.size, -c.size, 0);
+        ctxCorazones.bezierCurveTo(-c.size, c.size, 0, c.size * 1.5, 0, c.size * 2);
+        ctxCorazones.bezierCurveTo(0, c.size * 1.5, c.size, c.size, c.size, 0);
+        ctxCorazones.bezierCurveTo(c.size, -c.size, 0, -c.size, 0, 0);
+
+        ctxCorazones.fillStyle = c.color;
+        ctxCorazones.fill();
+        ctxCorazones.restore();
+    }
+
+    function animarCorazones() {
+        ctxCorazones.clearRect(0, 0, canvasCorazones.width, canvasCorazones.height);
+
+        corazones.forEach(c => {
+            c.size = c.baseSize + Math.sin(c.pulse) * 2;
+            c.pulse += 0.05;
+
+            dibujarCorazon(c);
+
+            c.y -= c.speed;
+            c.x += c.drift;
+            c.angle += 0.01;
+            c.opacity -= 0.0015;
+
+            if (c.opacity <= 0 || c.y < -50) {
+                // Reiniciar corazón en la parte inferior
+                c.x = Math.random() * canvasCorazones.width;
+                c.y = canvasCorazones.height + 20;
+                c.baseSize = 5 + Math.random() * 15;
+                c.size = c.baseSize;
+                c.speed = 0.5 + Math.random() * 1.5;
+                c.angle = Math.random() * Math.PI * 2;
+                c.opacity = 0.5 + Math.random() * 0.5;
+                c.color = colores[Math.floor(Math.random() * colores.length)];
+                c.drift = (Math.random() - 0.5) * 1;
+                c.pulse = Math.random() * Math.PI * 2;
+            }
+        });
+
+        requestAnimationFrame(animarCorazones);
+    }
+
+    crearCorazones();
+    animarCorazones();
+
+    window.addEventListener('resize', () => {
+        canvasCorazones.width = window.innerWidth;
+        canvasCorazones.height = window.innerHeight;
+    });
+}
+</script>
+
+
+<!-- TEXTOS FLOTANTES -->
+<script>
+const textosFlotantes = ["Amor eterno", "Juntos para siempre", "Felicidad", "Celebración", "Nuestro día", "Sí quiero", "Alegría", "Bendición"];
+for(let i=0;i<100;i++){
+  const span=document.createElement('span');
+  span.className='texto-flotante';
+  span.innerText=textosFlotantes[Math.floor(Math.random()*textosFlotantes.length)];
+  span.style.left=Math.random()*100+'vw';
+  span.style.top=Math.random()*100+'vh';
+  span.style.animationDuration=(15+Math.random()*20)+'s';
+  span.style.fontSize=(1+Math.random()*1.5)+'em';
+  span.style.color='rgba(191,161,83,'+(0.2+Math.random()*0.5)+')';
+  document.body.appendChild(span);
+}
+</script>
+
+<!-- HEADER CARRUSEL -->
+<header>
+  <div class="carrusel">
+    <div class="slide active"><img src="slide1.jpg" alt=""></div>
+    <div class="slide"><img src="assets/imagen1.jpeg" alt=""></div>
+    <div class="slide"><img src="assets/imagen2.jpeg" alt=""></div>
+  </div>
+  <div class="header-texto">
+    <h1>Lizeth y Eduardo</h1>
+    <h2>¡Nos casamos!</h2>
+  </div>
+</header>
+
+<!-- MENSAJE LARGO 1 -->
+<div class="mensaje-largo" id="mensaje1">
+  Con gran alegría queremos invitarte a compartir con nosotros el inicio de nuestra vida juntos. Tu presencia hará este día aún más especial y memorable.
+</div>
+
+<!-- CONTADOR -->
+<div class="contador" id="contador">
+  <div class="tiempo"><span id="dias">0</span><span class="label">Días</span></div>
+  <div class="tiempo"><span id="horas">0</span><span class="label">Horas</span></div>
+  <div class="tiempo"><span id="minutos">0</span><span class="label">Minutos</span></div>
+  <div class="tiempo"><span id="segundos">0</span><span class="label">Segundos</span></div>
+</div>
+
+<!-- EVENTOS -->
+<div class="eventos">
+  <div class="evento-item">
+    <img src="assets\divino.png" alt="">
+    <h3>Ceremonia</h3>
+    <p>I.N.P. "Divino Jesus"</p>
+    <a class="boton-maps" href="https://maps.app.goo.gl/YUQpDVkZz5jMM5u7A" target="_blank">Ver ubicación</a>
+  </div>
+  <div class="evento-item">
+    <img src="assets/salon.jfif" alt="">
+    <h3>Recepcion</h3>
+    <p>Salon Magno</p>
+    <a class="boton-maps" href="https://maps.app.goo.gl/CAwCzoDc1MzetQ2R7" target="_blank">Ver ubicación</a>
+  </div>
+</div>
+
+<!-- ITINERARIO -->
+<div class="itinerario-vertical">
+  <div class="evento-vertical">
+    <div class="detalle"><span class="etiqueta">Ceremonia Religiosa</span><span class="hora">18:00</span></div>
+  </div>
+  <div class="evento-vertical">
+    <div class="detalle"><span class="etiqueta">Recepcion</span><span class="hora">20:00</span></div>
+  </div>
+  <div class="evento-vertical">
+    <div class="detalle"><span class="etiqueta">Cena</span><span class="hora">21:00</span></div>
+  </div>
+  <div class="evento-vertical">
+    <div class="detalle"><span class="etiqueta">Pastel</span><span class="hora">23:00</span></div>
+  </div>
+</div>
+
+<!-- MENSAJE LARGO 2 -->
+<div class="mensaje-largo" id="mensaje2">
+  Esperamos que nos acompañes en esta celebración llena de amor, alegría y buenos deseos. Cada momento será único gracias a ti.
+</div>
+
+<!-- CONFIRMACIÓN DE ASISTENCIA -->
+<div class="confirmacion">
+  <h2>Confirma tu asistencia</h2>
+<form id="formRSVP" action="https://formspree.io/f/xjkpwgkq" method="POST">
+
+  <!-- Campo oculto para el asunto del correo -->
+  <input type="hidden" name="_subject" value="Nueva confirmación de asistencia 💍">
+
+  <!-- Anti SPAM -->
+   <input type="text" name="_gotcha" style="display:none">
+
+  <input type="text" name="nombre" placeholder="Nombre completo" required>
+  <input type="number" name="personas" placeholder="Personas que asisten" required>
+  <textarea name="mensaje" placeholder="Mensaje (opcional)"></textarea>
+  <button type="submit">Enviar</button>
+</form>
+</div>
+
+<!-- MENSAJE DE ÉXITO -->
+<div class="mensaje-exito" id="mensajeExito">¡Gracias por confirmar tu asistencia! 💖</div>
+
+<!-- FONDO MUSICAL -->
+<audio id="fondoMusical" loop autoplay>
+  <source src="assets/cancion.mp3" type="audio/mpeg">
+  Tu navegador no soporta audio HTML5.
+</audio>
+<button id="btnMusica" style="position:fixed; bottom:20px; right:20px; background:#bfa153; color:white; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; z-index:1000; font-size:1em;">
+  Nuestra cancion
+</button>
+<script>
+// Ejecutamos la función de los Corazones que está definida arriba
+iniciarCorazones(); 
+
+// ===== CARRUSEL =====
+let indice = 0;
+const slides = document.querySelectorAll('.slide');
+if (slides.length > 1) { 
+    setInterval(() => {
+        slides[indice].classList.remove('active');
+        indice = (indice + 1) % slides.length;
+        slides[indice].classList.add('active');
+    }, 5000);
+}
+
+
+// ===== MENSAJES VISIBLES =====
+function mostrarMensajes() {
+    requestAnimationFrame(() => {
+        const mensaje1 = document.getElementById('mensaje1');
+        const mensaje2 = document.getElementById('mensaje2');
+        if (mensaje1) mensaje1.classList.add('visible');
+        if (mensaje2) mensaje2.classList.add('visible');
+    });
+}
+document.addEventListener('DOMContentLoaded', mostrarMensajes);
+
+
+// ===== CONTADOR =====
+const fechaBoda = new Date("2026-01-10T16:00:00"); 
+function actualizarContador(){
+    const ahora = new Date();
+    const diff = fechaBoda - ahora;
+    
+    if (diff < 0) {
+        document.getElementById('dias').innerText = '00';
+        document.getElementById('horas').innerText = '00';
+        document.getElementById('minutos').innerText = '00';
+        document.getElementById('segundos').innerText = '00';
+        return;
+    }
+
+    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutos = Math.floor((diff / (1000 * 60)) % 60);
+    const segundos = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('dias').innerText = dias.toString().padStart(2, '0');
+    document.getElementById('horas').innerText = horas.toString().padStart(2, '0');
+    document.getElementById('minutos').innerText = minutos.toString().padStart(2, '0');
+    document.getElementById('segundos').innerText = segundos.toString().padStart(2, '0');
+}
+setInterval(actualizarContador, 1000);
+actualizarContador();
+
+
+// ===== ITINERARIO VISIBILIDAD (Ajustado el offset) =====
+const eventosVerticales = document.querySelectorAll('.evento-vertical');
+window.addEventListener('scroll', () => {
+    eventosVerticales.forEach(ev => {
+        const rect = ev.getBoundingClientRect();
+        // Condición de visibilidad: cuando el elemento está a menos de 200px del fondo de la ventana
+        if (rect.top < window.innerHeight - 200) { 
+            ev.classList.add('visible');
+        }
+    });
+});
+
+
+// ===== PARTICULAS (Usa canvasParticles y ctxParticles) =====
+const canvasParticles = document.getElementById('canvasParticles');
+if (canvasParticles) {
+    const ctxParticles = canvasParticles.getContext('2d');
+    canvasParticles.width = window.innerWidth;
+    canvasParticles.height = window.innerHeight;
+    const particulas = [];
+    
+    for(let i = 0; i < 100; i++){
+        particulas.push({
+            x: Math.random() * canvasParticles.width, 
+            y: Math.random() * canvasParticles.height, 
+            r: Math.random() * 3 + 1, 
+            d: Math.random() * 1.5 + 0.5
+        });
+    }
+
+    function dibujarParticulas(){
+        // Limpiamos sin rastro, es más seguro para la performance en móvil
+        ctxParticles.clearRect(0, 0, canvasParticles.width, canvasParticles.height); 
+        ctxParticles.fillStyle = 'rgba(191,161,83,0.6)';
+        
+        particulas.forEach(p => {
+            ctxParticles.beginPath();
+            ctxParticles.arc(p.x, p.y, p.r, 0, Math.PI * 2, false);
+            ctxParticles.fill();
+            p.y += p.d;
+            if(p.y > canvasParticles.height){ 
+                p.y = 0; 
+                p.x = Math.random() * canvasParticles.width; 
+            }
+        });
+        requestAnimationFrame(dibujarParticulas);
+    }
+    dibujarParticulas();
+
+    window.addEventListener('resize', () => {
+        canvasParticles.width = window.innerWidth;
+        canvasParticles.height = window.innerHeight;
+    });
+}
+
+
+// ===== MUSICA (Revisada la política de Autoplay) =====
+const musica = document.getElementById('fondoMusical');
+const btnMusica = document.getElementById('btnMusica');
+
+function toggleMusica() {
+    if (musica.paused) {
+        musica.play().then(() => {
+            btnMusica.textContent = "Pausar";
+        }).catch(error => {
+            console.warn("Autoplay fallido. El usuario debe interactuar: ", error);
+            btnMusica.textContent = "Reproducir"; 
+        });
+    } else {
+        musica.pause();
+        btnMusica.textContent = "Reproducir";
+    }
+}
+
+btnMusica.addEventListener('click', toggleMusica);
+
+// Intento de autoplay con la primera interacción del usuario
+document.addEventListener('click', function handler() {
+    musica.play().then(() => {
+        btnMusica.textContent = "Pausar";
+    }).catch(error => {
+        // En caso de fallo, dejamos que el botón de música sea el único trigger
+    });
+    document.removeEventListener('click', handler);
+});
+
+
+// ===== MENSAJE DE ENVIO (Formspree) =====
+const form = document.getElementById('formRSVP');
+const mensajeExito = document.getElementById('mensajeExito');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const response = await fetch(form.action, { 
+        method: form.method,
+        body: data,
+        headers: { 'Accept': 'application/json' }
+    });
+    
+    if (response.ok) {
+        form.reset();
+        mensajeExito.classList.add('visible');
+        setTimeout(() => mensajeExito.classList.remove('visible'), 4000);
+    } else {
+        alert("Ocurrió un error al enviar el formulario. Intenta de nuevo más tarde.");
+    }
+});
+
+// ===== PARALLAX HEADER =====
+window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const headerTexto = document.querySelector('.header-texto');
+    // Factor de Parallax reducido (0.2) para ser sutil en móviles
+    headerTexto.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.2}px))`; 
+});
+</script>
+</body>
+</html>
